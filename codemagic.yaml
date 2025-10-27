@@ -4,21 +4,17 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 120
 
-    # Интеграция с App Store Connect (из Team settings → Integrations)
     integrations:
       app_store_connect: "Roberto Steendam"
 
-    environment:
+    environment: 
       xcode: latest
       ios_signing: 
         distribution_type: app_store
         bundle_identifier: com.steendamapps.grindcontrol
       vars:
-        # Т.к. CocoaPods = no — используем .xcodeproj:
         XCODE_PROJECT: "grindomapp.xcodeproj"
-        # Если перейдёшь на CocoaPods, вместо PROJECT используй:
-        # XCODE_WORKSPACE: "grindomapp.xcworkspace"
-        XCODE_SCHEME: "grindomapp"
+        XCODE_SCHEME: "grindomapp"   # fixed quotes
         APP_STORE_APPLE_ID: 6754091771
 
     cache:
@@ -27,9 +23,9 @@ workflows:
         - $HOME/Library/Developer/Xcode/DerivedData/**/SourcePackages
 
     triggering:
-      events: [ push ]
+      events: [ tag ]                 # was: [ push ]
       branch_patterns:
-        - pattern: "main"
+        - pattern: "v*"
           include: true
           source: true
       cancel_previous_builds: true
@@ -40,10 +36,6 @@ workflows:
           xcodebuild -resolvePackageDependencies \
             -project "$XCODE_PROJECT" \
             -scheme "$XCODE_SCHEME"
-          # Если используешь workspace:
-          # xcodebuild -resolvePackageDependencies \
-          #   -workspace "$XCODE_WORKSPACE" \
-          #   -scheme "$XCODE_SCHEME"
 
       - name: Set up code signing (automatic via App Store Connect)
         script: |
@@ -59,10 +51,6 @@ workflows:
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
-          # Если используешь workspace:
-          # xcode-project build-ipa \
-          #   --workspace "$XCODE_WORKSPACE" \
-          #   --scheme "$XCODE_SCHEME"
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -73,6 +61,5 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        # beta_groups: [ Internal ]    # при необходимости укажи группу
         submit_to_app_store: true
-        cancel_previous_submissions: true
+        cancel_previous_submissions: false   # was: true
