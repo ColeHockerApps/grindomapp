@@ -11,7 +11,7 @@ workflows:
       xcode: latest
       ios_signing: 
         distribution_type: app_store
-        bundle_identifier: com.steendamapps.gridemapp
+        bundle_identifier: com.steendamapps.grildemapp
       vars:
         XCODE_PROJECT: "grindomapp.xcodeproj"
         XCODE_SCHEME: "grindomapp"   # fixed quotes
